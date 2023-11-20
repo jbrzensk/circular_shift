@@ -21,7 +21,7 @@ int handleCyclicShift(ivec &indices, const uint size)
 
 sp_mat circshift(const sp_mat &Q, const s32 shift, const u16 axes)
 {
-    /* circshift is a Sparse implementation of the circshift operator for 
+    /* circshift is a Sparse implementation of the MATLAB circshift operator for 
        Armadillo. The standard operator works for dense matrixes, but we require
        a sparse implementation. Because sparse matrices are stored in CSR format,
        a different technique is used to speed up the process. If the matrix is
@@ -40,7 +40,7 @@ sp_mat circshift(const sp_mat &Q, const s32 shift, const u16 axes)
 
     */
 
-    bool sort_locations = false;  // We are sorting the locations for axis == 1
+    bool sort_locations = false;  // This algorithm sorts the locations for axis == 1,
     bool check_for_zeros = false; // And we are not adding any zero members, so do not check.
 
     uint size = (axes == 1) ? Q.n_cols : Q.n_rows; // Size is number of cols or rows
@@ -51,7 +51,7 @@ sp_mat circshift(const sp_mat &Q, const s32 shift, const u16 axes)
     uvec c(elements);
     vec val(elements);
 
-    // Populate r, c, and val vectors
+    // Strip sparse matrix into its row/column indices, and the values
     int count = 0;
     for (sp_mat::const_iterator it = Q.begin(); it != Q.end(); ++it)
     {
@@ -62,7 +62,7 @@ sp_mat circshift(const sp_mat &Q, const s32 shift, const u16 axes)
     }
 
     // uvec may need indices higher than it can go, or may
-    // need to subtract, so convert to ivec
+    // need to subtract (negative indices), so convert to ivec
     ivec cc = conv_to<ivec>::from(c);
     ivec rr = conv_to<ivec>::from(r);
 
@@ -89,18 +89,18 @@ sp_mat circshift(const sp_mat &Q, const s32 shift, const u16 axes)
     // Build dense location matrix
     Loc = arma::join_vert(r.t(), c.t());
 
-    // For shifts in left/right direction (axis==1)
+    // For shifts in left/right direction (axis==1), no need to sort!
     // cut bottom off and put on top, or cut top off and put on bottom
     if ( axes == 1 )
     {
         LocShift = arma::shift(Loc,shifted,1);
         ValShift = arma::shift(val,shifted);
     }
-    else  // Otherwise we assume that Armadillo will be able to sort the entries for use
+    else  // Otherwise we assume that Armadillo will be able to sort the entries for us
     {
         LocShift = Loc;
         ValShift = val;
-        sort_locations = true;
+        sort_locations = true; // make Armadillo sort the values, check_for_zeros still false becasue we did not make zeros.
     } 
 
     return sp_mat( LocShift, ValShift, Q.n_rows, Q.n_cols, sort_locations, check_for_zeros );

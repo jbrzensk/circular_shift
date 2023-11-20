@@ -8,7 +8,6 @@
 using namespace arma;
 using namespace std::chrono;
 
-
 int main( int argc, char *argv[] ) {
 
     int      s = 10;
@@ -62,14 +61,14 @@ int main( int argc, char *argv[] ) {
     Q.diag(5).fill(2.5);
     Q.diag(-5).fill(2.5);
 
-    cout << "Q matrix has " << Q.n_nonzero << " nonzero elements. " << endl;
+    std::cout << "Q matrix has " << Q.n_nonzero << " nonzero elements. " << endl;
 
     // Some holders for comparison
     sp_mat RESULTA;
     sp_mat RESULTB;
     sp_mat Diff;
 
-    cout << "trying four times to check the timing..." << endl << endl << endl;
+    std::cout << "trying four times to check the timing..." << endl << endl << endl;
     for (int i=0; i<4; ++i){
 
         mat Qd(Q); // make dense version for shift
@@ -77,7 +76,7 @@ int main( int argc, char *argv[] ) {
         RESULTA = arma::shift(Qd,shifts, axis);
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<microseconds>(stop - start);
-        cout << "Armadillo shift took " << duration.count() << "us" << endl;
+        std::cout << "Armadillo shift took " << duration.count() << "us" << endl;
         
         // sparse circshift
         auto start2 = high_resolution_clock::now();
@@ -87,7 +86,7 @@ int main( int argc, char *argv[] ) {
         std::cout << "Sparse Circshift took " << duration2.count() << "us" << endl << endl;
 
         Diff = RESULTA-RESULTB;
-        double norm_of_diff = Diff.max();
+        double max_of_diff = Diff.max();
 
         /* Print out the matrices if they are small enough ! */
         if ( Q.n_cols <= 10 && Q.n_rows <= 10 )
@@ -106,7 +105,7 @@ int main( int argc, char *argv[] ) {
             RESULTB_D.print();
                            
         }
-        std::cout << "Difference between functions shift: " << std::setprecision(12) << norm_of_diff << endl << endl << endl;
+        std::cout << "Difference between functions shift: " << std::setprecision(8) << max_of_diff << endl << endl << endl;
     }
 }
 
