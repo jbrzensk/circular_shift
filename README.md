@@ -1,6 +1,7 @@
 
-# Armadillo Sparse circshift Function
-
+# Armadillo Sparse circular_shift Function
+Circular_shift is a Sparse implementation of the MATLAB circshift operator for the Armadillo C++ library. The standard operator works for dense matrixes, but we require
+a sparse implementation. Because sparse matrices are stored in CSR format, a different technique is used to speed up the process. If the matrix is shifted in the left/right direction, we also can sort the indices faster than Armadillo can, so we help that out for rebuilding the returned matrix.
 ## Installation
 
 Run the included makefile on your machine. Change the first four lines, including the location of the ARMA library and include or remove any libraries you may need.
